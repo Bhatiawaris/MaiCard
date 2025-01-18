@@ -17,8 +17,9 @@ import { Route as RecoverPasswordImport } from './routes/recover-password'
 import { Route as LoginImport } from './routes/login'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
-import { Route as LayoutSettingsImport } from './routes/_layout/settings'
-import { Route as LayoutItemsImport } from './routes/_layout/items'
+import { Route as LayoutYouImport } from './routes/_layout/you'
+import { Route as LayoutScanImport } from './routes/_layout/scan'
+import { Route as LayoutSavedImport } from './routes/_layout/saved'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
 
 // Create/Update Routes
@@ -53,13 +54,18 @@ const LayoutIndexRoute = LayoutIndexImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutSettingsRoute = LayoutSettingsImport.update({
-  path: '/settings',
+const LayoutYouRoute = LayoutYouImport.update({
+  path: '/you',
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutItemsRoute = LayoutItemsImport.update({
-  path: '/items',
+const LayoutScanRoute = LayoutScanImport.update({
+  path: '/scan',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutSavedRoute = LayoutSavedImport.update({
+  path: '/saved',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -96,12 +102,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/items': {
-      preLoaderRoute: typeof LayoutItemsImport
+    '/_layout/saved': {
+      preLoaderRoute: typeof LayoutSavedImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/settings': {
-      preLoaderRoute: typeof LayoutSettingsImport
+    '/_layout/scan': {
+      preLoaderRoute: typeof LayoutScanImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/you': {
+      preLoaderRoute: typeof LayoutYouImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/': {
@@ -116,8 +126,9 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
-    LayoutItemsRoute,
-    LayoutSettingsRoute,
+    LayoutSavedRoute,
+    LayoutScanRoute,
+    LayoutYouRoute,
     LayoutIndexRoute,
   ]),
   LoginRoute,

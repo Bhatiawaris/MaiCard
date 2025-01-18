@@ -15,18 +15,18 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
 import { z } from "zod"
 
-import { ItemsService } from "../../client"
-import ActionsMenu from "../../components/Common/ActionsMenu"
-import Navbar from "../../components/Common/Navbar"
-import AddItem from "../../components/Items/AddItem"
+import { ItemsService } from "../../client/index.ts"
+import ActionsMenu from "../../components/Common/ActionsMenu.tsx"
+import Navbar from "../../components/Common/Navbar.tsx"
+import AddItem from "../../components/Items/AddItem.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 
 const itemsSearchSchema = z.object({
   page: z.number().catch(1),
 })
 
-export const Route = createFileRoute("/_layout/items")({
-  component: Items,
+export const Route = createFileRoute("/_layout/saved")({
+  component: Saved,
   validateSearch: (search) => itemsSearchSchema.parse(search),
 })
 
@@ -121,7 +121,7 @@ function ItemsTable() {
   )
 }
 
-function Items() {
+function Saved() {
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>

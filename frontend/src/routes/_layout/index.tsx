@@ -1,5 +1,6 @@
 import { Box, Container, Text } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
+import { QrCode } from "../../components/ui/qr-code"
 
 import useAuth from "../../hooks/useAuth"
 

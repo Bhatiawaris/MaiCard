@@ -23,11 +23,11 @@ const tabsConfig = [
   { title: "Danger zone", component: DeleteAccount },
 ]
 
-export const Route = createFileRoute("/_layout/settings")({
-  component: UserSettings,
+export const Route = createFileRoute("/_layout/you")({
+  component: You,
 })
 
-function UserSettings() {
+function You() {
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const finalTabs = currentUser?.is_superuser

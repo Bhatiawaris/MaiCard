@@ -18,9 +18,9 @@ import { FiLogOut, FiMenu } from "react-icons/fi"
 import Logo from "/assets/images/fastapi-logo.svg"
 import type { UserPublic } from "../../client"
 import useAuth from "../../hooks/useAuth"
-import SidebarItems from "./SidebarItems"
+import BarItems from "./BarItems"
 
-const Sidebar = () => {
+const NavMenu = () => {
   const queryClient = useQueryClient()
   const bgColor = useColorModeValue("ui.light", "ui.dark")
   const textColor = useColorModeValue("ui.dark", "ui.light")
@@ -36,45 +36,20 @@ const Sidebar = () => {
   return (
     <>
       {/* Mobile */}
-      <IconButton
-        onClick={onOpen}
+      <Box
+        position="fixed"
+        bottom="0"
+        left="0"
+        width="100%"
+        bg="white"
+        boxShadow="0 -2px 5px rgba(0, 0, 0, 0.1)"
         display={{ base: "flex", md: "none" }}
-        aria-label="Open Menu"
-        position="absolute"
-        fontSize="20px"
-        m={4}
-        icon={<FiMenu />}
-      />
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent maxW="250px">
-          <DrawerCloseButton />
-          <DrawerBody py={8}>
-            <Flex flexDir="column" justify="space-between">
-              <Box>
-                <Image src={Logo} alt="logo" p={6} />
-                <SidebarItems onClose={onClose} />
-                <Flex
-                  as="button"
-                  onClick={handleLogout}
-                  p={2}
-                  color="ui.danger"
-                  fontWeight="bold"
-                  alignItems="center"
-                >
-                  <FiLogOut />
-                  <Text ml={2}>Log out</Text>
-                </Flex>
-              </Box>
-              {currentUser?.email && (
-                <Text color={textColor} noOfLines={2} fontSize="sm" p={2}>
-                  Logged in as: {currentUser.email}
-                </Text>
-              )}
-            </Flex>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
+        zIndex="1000"
+      >
+        <Flex justify="space-around" align="center" py="3%" width="100%">
+          <BarItems mobile/>
+        </Flex>
+      </Box>
 
       {/* Desktop */}
       <Box
@@ -93,8 +68,7 @@ const Sidebar = () => {
           borderRadius={12}
         >
           <Box>
-            <Image src={Logo} alt="Logo" w="180px" maxW="2xs" p={6} />
-            <SidebarItems />
+            <BarItems />
           </Box>
           {currentUser?.email && (
             <Text
@@ -113,4 +87,4 @@ const Sidebar = () => {
   )
 }
 
-export default Sidebar
+export default NavMenu
