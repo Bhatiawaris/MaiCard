@@ -37,9 +37,7 @@ function QRScanner () {
     async function onSave() {
         const payload = {
           profile_id1: window.activeProfile,
-          profile_id2: scanned.profileId,
-          username: scanned.username,
-          contacts: scanned.contacts,
+          profile_id2: scanned,
         }
     
         console.log(payload)
@@ -79,12 +77,12 @@ function QRScanner () {
                 <ModalContent as="form">
                     <ModalHeader>New Connection</ModalHeader>
                         <ModalCloseButton />
-                    <ModalBody pb={6}>
-                        {scanned?.username}
-                    </ModalBody>
 
                     <ModalFooter gap={3}>
-                        <Button variant="primary" onClick={() => {onSave()}}>
+                        <Button variant="primary" onClick={() => {
+                            onSave()
+                            addModal.onClose()
+                        }}>
                             Save Profile Card
                         </Button>
                     </ModalFooter>

@@ -24,25 +24,25 @@ class DBHelper():
         return query.data
 
     # gets a users saves
-    def getSaves(self, user_id):
-        query = self.supabase.table("saves").select("profile_id, date_saved").eq("user_id", user_id).execute()
+    def getSaves(self, my_profile_id):
+        query = self.supabase.table("saves").select("*").eq("my_profile_id", my_profile_id).execute()
         result = []
         for entry in query.data:
-            profile = self.getProfile(entry["profile_id"])
+            profile = self.getProfile(entry["other_profile_id"])
             result.append({
-                "profile" : profile,
+                "username" : profile["username"],
+                "contacts" : profile["contacts"],
                 "date_saved" : entry["date_saved"]
             })
         return result
+
     
     # saves a profile to a user's account
-    def saveProfile(self, profile_id1, profile_id2, contacts, username):
+    def saveProfile(self, profile_id1, profile_id2):
         entry = {
             "my_profile_id" : profile_id1,
             "other_profile_id" : profile_id2,
-            "date_saved" : datetime.now().strftime("%Y-%m-%d"),
-            "contacts" : contacts,
-            "username" : username
+            "date_saved" : datetime.now().strftime("%Y-%m-%d")
         }
         try: 
             self.supabase.table("saves").insert(entry).execute()

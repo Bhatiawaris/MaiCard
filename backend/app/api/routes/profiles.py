@@ -68,7 +68,7 @@ async def save_profile(save: SaveProfile):
     print(save)
     db = DBHelper()
     try:
-        result = db.saveProfile(save.profile_id1, save.profile_id2, save.contacts, save.username)
+        result = db.saveProfile(save.profile_id1, save.profile_id2)
         if result:
             return {"message" : "success"}
         else:
@@ -77,12 +77,12 @@ async def save_profile(save: SaveProfile):
         print(e)
         return HTTPException(status_code=404, detail = e)
 
-@router.get("/getSaves/{user_id}")
-async def get_saves(user_id: int):
+@router.get("/getSaves/{profile_id}")
+async def get_saves(profile_id: int):
     # Extract data from the request body
     db = DBHelper()
     try:
-        result = db.getSaves(user_id)
+        result = db.getSaves(profile_id)
         if result:
             return result
         else:

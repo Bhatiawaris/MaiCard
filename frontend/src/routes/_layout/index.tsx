@@ -31,9 +31,9 @@ function Dashboard() {
   const addModal = useDisclosure()
   const { user: currentUser } = useAuth()
   const [cards,setCards] = useState([
-    { title: "networking", color: "blue", val: JSON.stringify({contacts: {"LinkedIn": "https://www.google.com"}, profileId: 1000, username: "Bhatiawaris"})},
-    { title: "dating", color: "pink",  val: JSON.stringify({contacts: {"ChatGPT": "https://chatgpt.com/"}, profileId: 1001, username: "Bhatiawaris"})},
-    { title: "friends", color: "green", val: JSON.stringify({contacts: {"GitHub": "https://github.com/Bhatiawaris/MaiCard"}, profileId: 1002, username: "Bhatiawaris" })},
+    { title: "networking", color: "blue", val: "1000"},
+    { title: "dating", color: "pink",  val: "1001"},
+    { title: "friends", color: "green", val: "1002"},
   ])
 
   const getProfiles = async () => {
@@ -58,7 +58,7 @@ function Dashboard() {
       console.log(data)
       let loadedCards: any[] = []
       data.map((profile) => {
-        loadedCards = [...loadedCards, { title: profile.type, color: profile.color ? profile.color : "grey", val: JSON.stringify({contacts: profile.contacts, profileId: profile.profile_id, username: profile.username })}]  
+        loadedCards = [...loadedCards, { title: profile.type, color: profile.color ? profile.color : "grey", val: profile.profile_id.toString()}]
         if (!window.activeProfile) {
           window.activeProfile = profile.profile_id
         }
@@ -91,7 +91,7 @@ function Dashboard() {
                 <Box backgroundColor="white" m={"3rem"} style={{ borderRadius: "1rem" }}>
                   <QRProfile title={card.title} value={card.val}/>
                 </Box>
-                <Button onClick={() => setActiveProfile(JSON.parse(card.val).profileId)}>Set as Active</Button>
+                <Button onClick={() => setActiveProfile(Number(card.val))}>Set as Active</Button>
               </Card>
             ))}
           </MobileWallet>
@@ -113,7 +113,7 @@ function Dashboard() {
                     {card.title}
                   </Text>
                 </HStack>
-                <Button onClick={() => setActiveProfile(JSON.parse(card.val).profileId)}>Set as Active</Button>
+                <Button onClick={() => setActiveProfile(Number(card.val))}>Set as Active</Button>
               </Slide>
             ))}
           </DesktopCarousel>

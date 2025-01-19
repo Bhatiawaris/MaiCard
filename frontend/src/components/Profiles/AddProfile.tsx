@@ -34,9 +34,9 @@ const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
   const navigate = useNavigate();
 
   const options = [
-    { label: "LinkedIn", value: "option1" },
-    { label: "GitHub", value: "option2" },
-    { label: "WhatsApp", value: "option3" },
+    { label: "LinkedIn", value: "https://www.linkedin.com/in/daywellqiu/" },
+    { label: "GitHub", value: "https://github.com/dayqiu22" },
+    { label: "Instagram", value: "https://www.instagram.com/daywellqiu/" },
   ];
 
   async function onSubmit() {

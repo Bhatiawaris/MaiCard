@@ -91,5 +91,3 @@ class TokenPayload(SQLModel):
 class SaveProfile(SQLModel):
     profile_id1: int
     profile_id2 : int
-    username: str
-    contacts: Optional[Dict] = None
