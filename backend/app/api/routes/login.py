@@ -4,15 +4,17 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app import crud
 from app.api.deps import SessionDep
 from app.core import security
 from app.core.config import settings
-from app.models import Token
+from app.models import Token, User
+from app.core.DBHelper import DBHelper
 
 router = APIRouter(tags=["login"])
 
+db = DBHelper()
 
+###
 @router.post("/login/access-token", response_model=Token)
 def login_access_token(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
@@ -20,25 +22,20 @@ def login_access_token(
     """
     OAuth2 token-based login to retrieve an access token.
     """
-    user = crud.authenticate(
-        session=session, email=form_data.username, password=form_data.password
-    )
-    if not user:
+    user_data = db.loginUser(email=form_data.username, hashed_password=form_data.password)
+    if not user_data:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
 
+    # Generate an access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = security.create_access_token(
+        str("123"), expires_delta=access_token_expires
+    )
+
     return Token(
-        access_token=security.create_access_token(
-            str(user.user_id), expires_delta=access_token_expires
-        ),
+        access_token=access_token,
         token_type="bearer",
     )
-
-
-
-
 
 
 
