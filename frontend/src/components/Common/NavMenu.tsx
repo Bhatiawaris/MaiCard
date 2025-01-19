@@ -1,23 +1,12 @@
 import {
   Box,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerOverlay,
   Flex,
-  IconButton,
-  Image,
   Text,
   useColorModeValue,
-  useDisclosure,
 } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
-import { FiLogOut, FiMenu } from "react-icons/fi"
 
-import Logo from "/assets/images/fastapi-logo.svg"
 import type { UserPublic } from "../../client"
-import useAuth from "../../hooks/useAuth"
 import BarItems from "./BarItems"
 
 const NavMenu = () => {
@@ -26,12 +15,6 @@ const NavMenu = () => {
   const textColor = useColorModeValue("ui.dark", "ui.light")
   const secBgColor = useColorModeValue("ui.secondary", "ui.darkSlate")
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { logout } = useAuth()
-
-  const handleLogout = async () => {
-    logout()
-  }
 
   return (
     <>

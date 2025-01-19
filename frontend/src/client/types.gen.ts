@@ -15,7 +15,7 @@ export type HTTPValidationError = {
 
 export type ItemCreate = {
   title: string
-  description?: string | null
+  contacts: any
 }
 
 export type ItemPublic = {

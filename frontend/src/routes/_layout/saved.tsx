@@ -1,4 +1,6 @@
 import {
+  Box,
+  Text,
   Container,
   Heading,
   SkeletonText,
@@ -17,8 +19,6 @@ import { z } from "zod"
 
 import { ItemsService } from "../../client/index.ts"
 import ActionsMenu from "../../components/Common/ActionsMenu.tsx"
-import Navbar from "../../components/Common/Navbar.tsx"
-import AddItem from "../../components/Items/AddItem.tsx"
 import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
 
 const itemsSearchSchema = z.object({
@@ -124,12 +124,14 @@ function ItemsTable() {
 function Saved() {
   return (
     <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        Items Management
-      </Heading>
+      <Box m={"1rem"} mt={"2rem"}>
+        <Text fontSize="2xl">
+          Your Saved Profile Cards
+        </Text>
+        <Text>Your new connections!</Text>
+      </Box>
 
-      <Navbar type={"Item"} addModalAs={AddItem} />
-      <ItemsTable />
+
     </Container>
   )
 }

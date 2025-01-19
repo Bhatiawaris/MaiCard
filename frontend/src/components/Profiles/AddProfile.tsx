@@ -18,13 +18,14 @@ import { type SubmitHandler, useForm } from "react-hook-form"
 import { type ApiError, type ItemCreate, ItemsService } from "../../client"
 import useCustomToast from "../../hooks/useCustomToast"
 import { handleError } from "../../utils"
+import MultiSelect from "../../components/Common/MultiSelect"
 
-interface AddItemProps {
+interface AddProfileProps {
   isOpen: boolean
   onClose: () => void
 }
 
-const AddItem = ({ isOpen, onClose }: AddItemProps) => {
+const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
   const {
@@ -37,7 +38,7 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
     criteriaMode: "all",
     defaultValues: {
       title: "",
-      description: "",
+      contacts: {},
     },
   })
 
@@ -61,6 +62,12 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
     mutation.mutate(data)
   }
 
+  const options = [
+    { label: "Option 1", value: "option1" },
+    { label: "Option 2", value: "option2" },
+    { label: "Option 3", value: "option3" },
+  ];
+
   return (
     <>
       <Modal
@@ -71,7 +78,7 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
       >
         <ModalOverlay />
         <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Add Item</ModalHeader>
+          <ModalHeader>New Profile Card</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl isRequired isInvalid={!!errors.title}>
@@ -89,12 +96,10 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
               )}
             </FormControl>
             <FormControl mt={4}>
-              <FormLabel htmlFor="description">Description</FormLabel>
-              <Input
-                id="description"
-                {...register("description")}
-                placeholder="Description"
-                type="text"
+              <FormLabel htmlFor="contacs">Contacts</FormLabel>
+              <MultiSelect
+                options={options}
+                id="contacts"
               />
             </FormControl>
           </ModalBody>
@@ -111,4 +116,4 @@ const AddItem = ({ isOpen, onClose }: AddItemProps) => {
   )
 }
 
-export default AddItem
+export default AddProfile

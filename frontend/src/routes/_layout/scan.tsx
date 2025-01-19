@@ -1,6 +1,6 @@
 import { Container, Flex } from '@chakra-ui/react';
 import { createFileRoute } from '@tanstack/react-router'
-import QRScanner from '../../components/Scanner/QRScanner';
+import QRScanner from '../../components/QR/QRScanner';
 
 export const Route = createFileRoute('/_layout/scan')({
   component: Scan
