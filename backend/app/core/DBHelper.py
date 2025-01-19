@@ -15,6 +15,7 @@ class DBHelper():
 
     # get contacts of a profile, this is used when someone scans someone else
     def getProfile(self, profile_id):
+        print("AM I FUCKING WORKING?")
         query = self.supabase.table("profiles").select("*").eq('profile_id', profile_id).execute()
         return query.data[0]
     
@@ -136,3 +137,12 @@ class DBHelper():
             print(f"Error has occured: {e}")
             return False
     
+    # logs in a user
+    def getContacts(self, user_id):
+        try: 
+            new_contacts = self.supabase.table("users").select("contacts").eq("user_id", user_id).execute().data[0]["contacts"] 
+            return new_contacts
+        except Exception as e:
+            print(f"Error has occured: {e}")
+            return None
+        

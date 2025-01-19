@@ -22,7 +22,6 @@ def get_profile(profile_id: int):
 @router.post("/createProfile")
 async def create_profile(profile: ProfileCreate):
     # Extract data from the request body
-    db = DBHelper()
     print(profile)
     try:
         result = db.createProfile(profile.user_id, profile.username, profile.type, profile.contacts, profile.text, profile.color)
@@ -49,7 +48,6 @@ async def delete_profile(profile_id: int):
 @router.post("/updateProfile")
 async def update_profile(profile: ProfileUpdate):
     # Extract data from the request body
-    db = DBHelper()
     print(profile)
     try:
         result = db.updateProfile(profile.user_id, profile.type, profile.contacts, profile.text)
@@ -65,8 +63,6 @@ async def update_profile(profile: ProfileUpdate):
 @router.post("/saveProfile")
 async def save_profile(save: SaveProfile):
     # Extract data from the request body
-    print(save)
-    db = DBHelper()
     try:
         result = db.saveProfile(save.profile_id1, save.profile_id2, save.contacts, save.username)
         if result:
@@ -80,7 +76,6 @@ async def save_profile(save: SaveProfile):
 @router.get("/getSaves/{user_id}")
 async def get_saves(user_id: int):
     # Extract data from the request body
-    db = DBHelper()
     try:
         result = db.getSaves(user_id)
         if result:
@@ -94,7 +89,6 @@ async def get_saves(user_id: int):
 @router.get("/getProfiles/{user_id}")
 async def get_profiles(user_id: int):
     # Extract data from the request body
-    db = DBHelper()
     try:
         result = db.getProfiles(user_id)
         return result
@@ -105,12 +99,22 @@ async def get_profiles(user_id: int):
 @router.post("/addSocialMedia")
 async def add_social_media(data: AddSocialMedia):
     # Extract data from the request body
-    db = DBHelper()
     user_id = data.user_id
     social_media_platform = data.social_media_platform
     social_media_username = data.social_media_username
     try:
         result = db.addSocialMedia(user_id, social_media_platform, social_media_username)
+        return True
+    except Exception as e:
+        print(e)
+        return HTTPException(status_code=404, detail = e)
+
+@router.get("/getSocialMedias/{user_id}")
+async def get_social_medias(user_id: int):
+    # Extract data from the request body
+    try:
+        result = db.getContacts(user_id)
+        print(result)
         return True
     except Exception as e:
         print(e)
