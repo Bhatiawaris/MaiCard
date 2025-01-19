@@ -9,8 +9,6 @@ from pgvector.sqlalchemy import Vector
 # Shared properties for User
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    is_active: bool = True
-    is_superuser: bool = False
     full_name: Optional[str] = Field(default=None, max_length=255)
 
 # Properties to receive via API on creation
