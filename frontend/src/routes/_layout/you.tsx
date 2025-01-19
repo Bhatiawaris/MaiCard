@@ -1,8 +1,13 @@
 import {
   Container,
   Heading,
-  Tabs,
+  Button,
+  Icon,
+  Box,
+  useDisclosure
 } from "@chakra-ui/react"
+import { FaPlus } from "react-icons/fa"
+
 import { useQueryClient } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 
@@ -11,6 +16,8 @@ import Appearance from "../../components/UserSettings/Appearance"
 import ChangePassword from "../../components/UserSettings/ChangePassword"
 import DeleteAccount from "../../components/UserSettings/DeleteAccount"
 import UserInformation from "../../components/UserSettings/UserInformation"
+import SocialMediaList from "../../components/You/SocialMediaList"
+import AddSocialMedia from "../../components/You/AddSocialMedia"
 
 const tabsConfig = [
   { title: "My profile", component: UserInformation },
@@ -23,7 +30,14 @@ export const Route = createFileRoute("/_layout/you")({
   component: You,
 })
 
+const hardcoded_social_options = {
+  "whatsapp": "whats_username",
+  "discord": "discord_username",
+  "instagram": "instagram_username",
+};
+
 function You() {
+  const addModal = useDisclosure()
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const finalTabs = currentUser?.is_superuser
@@ -35,6 +49,15 @@ function You() {
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} py={12}>
         User Settings
       </Heading>
+      <SocialMediaList data={hardcoded_social_options}>
+      </SocialMediaList>
+      
+      <Box p={"1rem"}>
+        <Button onClick={addModal.onOpen}>
+          <Icon as={FaPlus}/> Add Social Media
+        </Button>
+        <AddSocialMedia isOpen={addModal.isOpen} onClose={addModal.onClose} />
+      </Box>
     </Container>
   )
 }
