@@ -40,6 +40,8 @@ class Profile(SQLModel, table=True):
     vector_embeddings: Optional[List[float]] = Field(
         sa_column=Column(Vector(1024), nullable=True)  # Explicit mapping to PostgreSQL vector type
     )
+    username: Optional[str] = Field(default=None)
+    color: Optional[str] = Field(default=None)
     user: "User" = Relationship(back_populates="profiles")  # Relationship to User
 
 # Properties to return via API for Profile
@@ -87,5 +89,5 @@ class TokenPayload(SQLModel):
     sub: Optional[str] = None
 
 class SaveProfile(SQLModel):
-    user_id: int
+    my_profile_id: int
     profile_id : int

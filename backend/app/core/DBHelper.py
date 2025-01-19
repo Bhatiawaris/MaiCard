@@ -11,7 +11,6 @@ class DBHelper():
     def __init__(self):
         try:
             self.supabase = create_client(URL, KEY)
-            self.bgem3_service = BGEM3Service()
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -39,11 +38,14 @@ class DBHelper():
         return result
     
     # saves a profile to a user's account
-    def saveProfile(self, user_id, profile_id):
+    def saveProfile(self, my_profile_id, profile_id, compatability_score):
         entry = {
-            "user_id" : user_id,
-            "profile_id" : profile_id,
-            "date_saved" : datetime.now().strftime("%Y-%m-%d")
+            "my_profile_id" : my_profile_id,
+            "other_profile_id" : profile_id,
+            "date_saved" : datetime.now().strftime("%Y-%m-%d"),
+            "compatability_score": compatability_score,
+            "username": None, 
+            "contacts": None  
         }
         try: 
             self.supabase.table("saves").insert(entry).execute()
@@ -67,7 +69,7 @@ class DBHelper():
         }
         try: 
             self.supabase.table("profiles").insert(entry).execute()
-            return True
+            return profile_id
         except Exception as e:
             print(f"Error has occured: {e}")
             return False
@@ -123,38 +125,39 @@ class DBHelper():
             return None
 
     # Generate and update vector embeddings for profiles
-    def createEmbeddings(self):
+    def createEmbeddings(self, text: str, profile_id: int):
+        bgem3_service = BGEM3Service()
         try:
-            # Fetch all profiles with non-null text
-            query = self.supabase.table("profiles").select("profile_id, text").not_("text", "is.null").execute()
-            profiles = query.data
-            
-            if not profiles:
-                print("No profiles with non-null text found.")
+            # Generate vector embeddings using BGEM3
+            embeddings = bgem3_service.embed_text(text)
+
+            if embeddings is None or not isinstance(embeddings, list):
+                print(f"Failed to generate embeddings for user {profile_id}.")
                 return False
 
-            for profile in profiles:
-                profile_id = profile["profile_id"]
-                text = profile["text"]
+            # Update the vector_embeddings column for the specified profile
+            self.supabase.table("profiles").update({
+                "vector_embeddings": embeddings
+            }).eq("profile_id", profile_id).execute()
 
-                # Generate vector embeddings using BGEM3
-                embeddings = self.bgem3_service.embed_text(text)
-
-                if embeddings is None:
-                    print(f"Failed to generate embeddings for profile_id {profile_id}. Skipping.")
-                    continue
-
-                # Update the vector_embeddings column
-                update_response = self.supabase.table("profiles").update({
-                    "vector_embeddings": embeddings
-                }).eq("profile_id", profile_id).execute()
-
-                if update_response.status_code not in (200, 204):  # Ensure update was successful
-                    print(f"Failed to update profile_id {profile_id}: {update_response.data}")
-                    continue
-
-            print("Vector embeddings updated successfully.")
+            print(f"Vector embeddings updated successfully for profile_id {profile_id}.")
             return True
         except Exception as e:
-            print(f"Error while creating embeddings: {e}")
+            print(f"Error while creating embeddings for profile_id {profile_id}: {e}")
             return False
+
+    def getEmbeddings(self, profile_id):
+        try:
+            # Query the profiles table for the vector_embeddings of the given profile_id
+            query = self.supabase.table("profiles").select("vector_embeddings").eq("profile_id", profile_id).execute()
+            
+            # Check if data exists
+            if not query.data:
+                print(f"No embeddings found for profile_id {profile_id}.")
+                return None
+            
+            # Return the embeddings
+            return query.data[0].get("vector_embeddings")
+        except Exception as e:
+            print(f"Error retrieving embeddings for profile_id {profile_id}: {e}")
+            return None

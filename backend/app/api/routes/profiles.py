@@ -3,6 +3,9 @@ from sqlmodel import Session, select
 from app.api.deps import SessionDep, get_current_active_user
 from app.models import Profile, ProfilePublic, ProfileCreate, ProfileUpdate, User, SaveProfile
 from app.core.DBHelper import DBHelper
+from app.bgem3 import BGEM3Service
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 db = DBHelper()
@@ -25,11 +28,27 @@ async def create_profile(profile: ProfileCreate):
     db = DBHelper()
     print(profile)
     try:
-        result = db.createProfile(profile.user_id, profile.type, profile.contacts, profile.text)
-        if result:
-            return {"message" : "success"}
-        else:
+        profile_id = db.createProfile(profile.user_id, profile.type, profile.contacts, profile.text)
+
+        if not profile_id:
             return HTTPException(status_code=404)
+        
+        try:
+            # Embed the text using BGEM3Service
+            embeddings = db.createEmbeddings(profile.text, profile_id)
+            
+            if embeddings is None:
+                raise HTTPException(status_code=500, detail="Failed to generate embeddings")
+
+            # Update the profile with the generated embeddings
+            db.supabase.table("profiles").update({
+                "vector_embeddings": embeddings
+            }).eq("user_id", profile.user_id).execute()
+        
+        except Exception as e:
+            print(f"Error generating embeddings: {e}")
+            raise HTTPException(status_code=500, detail=f"Error generating embeddings: {e}")
+        
     except Exception as e:
         print(e)
         return HTTPException(status_code=404, detail = e)
@@ -67,7 +86,27 @@ async def save_profile(save: SaveProfile):
     # Extract data from the request body
     db = DBHelper()
     try:
-        result = db.saveProfile(save.user_id, save.profile_id)
+        # Retrieve and parse embeddings
+        my_embeddings = db.getEmbeddings(save.my_profile_id)  # e.g., '[-1.0099975e-05,0.04453614,...]'
+        other_embeddings = db.getEmbeddings(save.profile_id) 
+
+        # Ensure embeddings are not None
+        if not my_embeddings or not other_embeddings:
+            raise HTTPException(status_code=404, detail="Embeddings not found for one or both profiles")
+
+        # Parse the string embeddings into numeric arrays
+        my_embeddings = np.array(eval(my_embeddings))  # Convert string to array
+        other_embeddings = np.array(eval(other_embeddings))
+
+        # Calculate cosine similarity
+        cosine_similarity_result = cosine_similarity(my_embeddings.reshape(1, -1), other_embeddings.reshape(1, -1))
+
+        # Extract the similarity score
+
+        cos = int(cosine_similarity_result[0][0] * 100)
+
+        result = db.saveProfile(save.my_profile_id, save.profile_id, cos)
+
         if result:
             return {"message" : "success"}
         else:
@@ -91,7 +130,7 @@ async def get_saves(user_id: int):
         return HTTPException(status_code=404, detail = e)
     
 @router.get("/getProfiles/{user_id}")
-async def get_saves(user_id: int):
+async def get_profiles(user_id: int):
     # Extract data from the request body
     db = DBHelper()
     try:

@@ -1,19 +1,15 @@
-from FlagEmbedding import BGEM3FlagModel
-import torch
+from FlagEmbedding import FlagModel
 
 class BGEM3Service:
-    def __init__(self, model_name="BAAI/bge-m3"):
-        self.model = BGEM3FlagModel(model_name, use_fp16=True)
+    def __init__(self, model_name="BAAI/bge-small-en-v1.5"):
+        self.model = FlagModel(model_name, use_fp16=True)
 
-    def embed_text(self, text: str, max_length=1024):
+    def embed_text(self, text: str, max_length=512):
         try:
-            with torch.no_grad():
-                # Generate the embedding using the model's encode method
-                embedding = self.model.encode([text], max_length=max_length)['dense_vecs'][0]
+            # Generate the embedding using the model's encode method
+            embedding = self.model.encode(text, max_length=max_length)
 
-                # Convert embedding to a NumPy array
-                embedding = torch.tensor(embedding).numpy()
-
+            # Convert embedding to a list for return
             return embedding.tolist()
         
         except Exception as e:
