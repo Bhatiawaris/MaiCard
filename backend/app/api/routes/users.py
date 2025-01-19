@@ -40,10 +40,10 @@ def create_user(
         raise HTTPException(
             status_code=400, detail="The user with this email already exists."
         )
-    
+    new_user = db.loginUser(email=user_in.email, hashed_password=user_in.password)
     return {
         "email": user_in.email,
-        "user_id": existing_user
+        "user_id": new_user
     }
 
 
