@@ -25,9 +25,9 @@ function Dashboard() {
   
   const { user: currentUser } = useAuth()
   const cards = [
-    { title: "Work", color: "blue", description: "null", val: "https://www.google.com" },
-    { title: "Dating", color: "pink", description: "null", val: "https://chatgpt.com/" },
-    { title: "Friends", color: "green", description: "null", val: "https://github.com/Bhatiawaris/MaiCard" },
+    { title: "work", color: "blue", description: "null", val: "https://www.google.com" },
+    { title: "dating", color: "pink", description: "null", val: "https://chatgpt.com/" },
+    { title: "friends", color: "green", description: "null", val: "https://github.com/Bhatiawaris/MaiCard" },
   ]
 
   return (

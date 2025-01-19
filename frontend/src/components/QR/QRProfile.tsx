@@ -9,9 +9,7 @@ export const QRProfile = ({ title, value } : { title: string, value: string}) =>
           <QrCode.Pattern />
         </QrCode.Frame>
         <QrCode.DownloadTrigger fileName={title + `_Profile.png`} mimeType="image/png">
-          <Button>
-              Save & Share
-          </Button>
+            Save & Share
         </QrCode.DownloadTrigger>
       </QrCode.Root>
     </Box>
