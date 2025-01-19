@@ -34,7 +34,7 @@ def create_user(
             status_code=400, detail="The user with this email already exists."
         )
     
-    success = db.registerUser(email=user_in.email, hashed_password=user_in.password)
+    success = db.registerUser(email=user_in.email, hashed_password=user_in.password, contacts= user_in.contacts)
 
     if not success:
         raise HTTPException(

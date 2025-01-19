@@ -44,8 +44,6 @@ class DBHelper():
             "other_profile_id" : profile_id,
             "date_saved" : datetime.now().strftime("%Y-%m-%d"),
             "compatability_score": compatability_score,
-            "username": None, 
-            "contacts": None  
         }
         try: 
             self.supabase.table("saves").insert(entry).execute()
@@ -99,14 +97,16 @@ class DBHelper():
             return False
     
     # registers a user
-    def registerUser(self, email, hashed_password):
+    def registerUser(self, email, hashed_password, contacts):
         query = self.supabase.table("users").select("user_id").order('user_id', desc=True).limit(1).execute()
         latest_id = query.data[0]
         user_id = int(latest_id["user_id"]) + 1
         entry = {
             "user_id" : user_id,
             "email" : email,
-            "hashed_password" : hashed_password
+            "hashed_password" : hashed_password,
+            "contacts" : contacts
+
         }
         try: 
             self.supabase.table("users").insert(entry).execute()

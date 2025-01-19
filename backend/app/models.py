@@ -10,6 +10,7 @@ from pgvector.sqlalchemy import Vector
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
     full_name: Optional[str] = Field(default=None, max_length=255)
+    contacts: Optional[Dict] = Field(default=None, sa_column=Column(JSONB))
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
