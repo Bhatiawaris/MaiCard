@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from DBHelper import DBHelper
+from backend.app.core.DBHelper import DBHelper
 app = FastAPI()
 db = DBHelper()
 
