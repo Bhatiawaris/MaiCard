@@ -122,3 +122,17 @@ class DBHelper():
         except Exception as e:
             print(f"Error has occured: {e}")
             return False
+        
+    # logs in a user
+    def addSocialMedia(self, user_id, social_media_platform, social_media_username):
+        try: 
+            new_contacts = self.supabase.table("users").select("contacts").eq("user_id", user_id).execute().data[0]["contacts"] 
+            if new_contacts == None:
+                new_contacts = {}
+            new_contacts[social_media_platform] = social_media_username
+            self.supabase.table("users").update({"contacts": new_contacts}).eq("user_id", user_id).execute()
+            return True
+        except Exception as e:
+            print(f"Error has occured: {e}")
+            return False
+    

@@ -93,3 +93,8 @@ class SaveProfile(SQLModel):
     profile_id2 : int
     username: str
     contacts: Optional[Dict] = None
+
+class AddSocialMedia(SQLModel):
+    user_id: int
+    social_media_username : str
+    social_media_platform : str

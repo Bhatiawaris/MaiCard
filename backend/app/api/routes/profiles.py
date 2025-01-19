@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.api.deps import SessionDep, get_current_active_user
-from app.models import Profile, ProfilePublic, ProfileCreate, ProfileUpdate, User, SaveProfile
+from app.models import Profile, ProfilePublic, ProfileCreate, ProfileUpdate, User, SaveProfile, AddSocialMedia
 from app.core.DBHelper import DBHelper
 
 router = APIRouter(prefix="/profiles", tags=["profiles"])
@@ -98,6 +98,20 @@ async def get_profiles(user_id: int):
     try:
         result = db.getProfiles(user_id)
         return result
+    except Exception as e:
+        print(e)
+        return HTTPException(status_code=404, detail = e)
+    
+@router.post("/addSocialMedia")
+async def add_social_media(data: AddSocialMedia):
+    # Extract data from the request body
+    db = DBHelper()
+    user_id = data.user_id
+    social_media_platform = data.social_media_platform
+    social_media_username = data.social_media_username
+    try:
+        result = db.addSocialMedia(user_id, social_media_platform, social_media_username)
+        return True
     except Exception as e:
         print(e)
         return HTTPException(status_code=404, detail = e)
