@@ -1,14 +1,17 @@
 import os
 from supabase import create_client, Client
 from datetime import datetime
+from app.bgem3 import BGEM3Service
+from app.core.config import settings
 
-URL = "https://fdsxeayozansnwmmcvrb.supabase.co"
-KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkc3hlYXlvemFuc253bW1jdnJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMzIwNzAsImV4cCI6MjA1MjgwODA3MH0.1TmaRj3YDRQ94Z1EepsMNnv1JwCWmn49vj7AyDc8FAk"
+URL = settings.SUPABASE_URL
+KEY = settings.SUPABASE_KEY
 
 class DBHelper():
     def __init__(self):
         try:
             self.supabase = create_client(URL, KEY)
+            self.bgem3_service = BGEM3Service()
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -118,4 +121,40 @@ class DBHelper():
         except Exception as e:
             print(f"Error has occured: {e}")
             return None
-        
+
+    # Generate and update vector embeddings for profiles
+    def createEmbeddings(self):
+        try:
+            # Fetch all profiles with non-null text
+            query = self.supabase.table("profiles").select("profile_id, text").not_("text", "is.null").execute()
+            profiles = query.data
+            
+            if not profiles:
+                print("No profiles with non-null text found.")
+                return False
+
+            for profile in profiles:
+                profile_id = profile["profile_id"]
+                text = profile["text"]
+
+                # Generate vector embeddings using BGEM3
+                embeddings = self.bgem3_service.embed_text(text)
+
+                if embeddings is None:
+                    print(f"Failed to generate embeddings for profile_id {profile_id}. Skipping.")
+                    continue
+
+                # Update the vector_embeddings column
+                update_response = self.supabase.table("profiles").update({
+                    "vector_embeddings": embeddings
+                }).eq("profile_id", profile_id).execute()
+
+                if update_response.status_code not in (200, 204):  # Ensure update was successful
+                    print(f"Failed to update profile_id {profile_id}: {update_response.data}")
+                    continue
+
+            print("Vector embeddings updated successfully.")
+            return True
+        except Exception as e:
+            print(f"Error while creating embeddings: {e}")
+            return False
