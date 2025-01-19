@@ -44,8 +44,8 @@ class DBHelper():
         entry = {
             "my_profile_id" : profile_id1,
             "other_profile_id" : profile_id2,
-            "date_saved" : datetime.now().strftime("%Y-%m-%d")
-            "compatability_score": compatability_score,
+            "date_saved" : datetime.now().strftime("%Y-%m-%d"),
+            "compatability_score": compatability_score
         }
         try: 
             self.supabase.table("saves").insert(entry).execute()
