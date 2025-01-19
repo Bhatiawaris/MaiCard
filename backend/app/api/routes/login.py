@@ -15,10 +15,10 @@ router = APIRouter(tags=["login"])
 db = DBHelper()
 
 ###
-@router.post("/login/access-token", response_model=Token)
+@router.post("/login/access-token")
 def login_access_token(
     session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
-) -> Token:
+):
     """
     OAuth2 token-based login to retrieve an access token.
     """
@@ -31,11 +31,14 @@ def login_access_token(
     access_token = security.create_access_token(
         str("123"), expires_delta=access_token_expires
     )
-
-    return Token(
-        access_token=access_token,
-        token_type="bearer",
-    )
+    print(user_data)
+    return {
+        "token":Token(
+            access_token=access_token,
+            token_type="bearer"
+        ),
+        "user_id":user_data["user_id"]
+    }
 
 
 

@@ -113,8 +113,9 @@ class DBHelper():
     # logs in a user
     def loginUser(self, email, hashed_password):
         try: 
-            query = self.supabase.table("users").select("*").eq("email", email).eq("hashed_password", hashed_password).execute()
-            return bool(query.data)
+            query = self.supabase.table("users").select("user_id").eq("email", email).eq("hashed_password", hashed_password).execute()
+            return query.data[0]
         except Exception as e:
             print(f"Error has occured: {e}")
-            return False
+            return None
+        
