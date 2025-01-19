@@ -36,7 +36,7 @@ function Saved() {
       console.log(data)
       let loadedCards: any[] = []
       data.map((profile) => {
-        loadedCards = [...loadedCards, { username: profile.username, contacts: profile.contacts, dateSaved: profile.date_saved }]
+        loadedCards = [...loadedCards, { username: profile.username, contacts: profile.contacts, dateSaved: profile.date_saved, compatability: profile.compatability_score }]
       })
       setCards([...cards, ...loadedCards])
     }
@@ -63,7 +63,8 @@ function Saved() {
                 {Object.keys(card.contacts).map((social) => (
                   <a key={social} href={card.contacts[social]} style={{color: "blue"}}>{social}</a>
                 ))}
-                <Text>{card.dateSaved}</Text>
+                <Text>Compatability score: {card.compatability}</Text>
+                <Text>Meeting date: {card.dateSaved}</Text>
               </Card>
             ))
           :

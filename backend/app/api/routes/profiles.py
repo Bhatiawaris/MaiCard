@@ -111,7 +111,7 @@ async def save_profile(save: SaveProfile):
         if result:
             return {"message" : "success"}
         else:
-            return HTTPException(status_code=404)
+            return HTTPException(status_code=400)
     except Exception as e:
         print(e)
         return HTTPException(status_code=404, detail = e)

@@ -34,7 +34,8 @@ class DBHelper():
             result.append({
                 "username" : profile["username"],
                 "contacts" : profile["contacts"],
-                "date_saved" : entry["date_saved"]
+                "date_saved" : entry["date_saved"],
+                "compatability_score": entry["compatability_score"]
             })
         return result
 
