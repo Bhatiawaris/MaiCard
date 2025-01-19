@@ -15,7 +15,9 @@ export type HTTPValidationError = {
 
 export type ProfileCreate = {
   title: string
+  type: string
   contacts: any
+  text: string
 }
 
 export type ProfileSave = {

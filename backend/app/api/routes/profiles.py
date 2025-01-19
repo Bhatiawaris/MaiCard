@@ -28,7 +28,7 @@ async def create_profile(profile: ProfileCreate):
     db = DBHelper()
     print(profile)
     try:
-        profile_id = db.createProfile(profile.user_id, profile.type, profile.contacts, profile.text)
+        profile_id = db.createProfile(profile.user_id, profile.username, profile.type, profile.contacts, profile.text, profile.color)
 
         if not profile_id:
             return HTTPException(status_code=404)
@@ -84,11 +84,12 @@ async def update_profile(profile: ProfileUpdate):
 @router.post("/saveProfile")
 async def save_profile(save: SaveProfile):
     # Extract data from the request body
+    print(save)
     db = DBHelper()
     try:
         # Retrieve and parse embeddings
-        my_embeddings = db.getEmbeddings(save.my_profile_id)  # e.g., '[-1.0099975e-05,0.04453614,...]'
-        other_embeddings = db.getEmbeddings(save.profile_id) 
+        my_embeddings = db.getEmbeddings(save.profile_id1)  # e.g., '[-1.0099975e-05,0.04453614,...]'
+        other_embeddings = db.getEmbeddings(save.profile_id2) 
 
         # Ensure embeddings are not None
         if not my_embeddings or not other_embeddings:
@@ -105,8 +106,8 @@ async def save_profile(save: SaveProfile):
 
         cos = int(cosine_similarity_result[0][0] * 100)
 
-        result = db.saveProfile(save.my_profile_id, save.profile_id, cos)
-
+        result = db.saveProfile(save.profile_id1, save.profile_id2, cos)
+        
         if result:
             return {"message" : "success"}
         else:
@@ -115,12 +116,12 @@ async def save_profile(save: SaveProfile):
         print(e)
         return HTTPException(status_code=404, detail = e)
 
-@router.get("/getSaves/{user_id}")
-async def get_saves(user_id: int):
+@router.get("/getSaves/{profile_id}")
+async def get_saves(profile_id: int):
     # Extract data from the request body
     db = DBHelper()
     try:
-        result = db.getSaves(user_id)
+        result = db.getSaves(profile_id)
         if result:
             return result
         else:

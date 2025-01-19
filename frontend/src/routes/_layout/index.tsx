@@ -7,6 +7,12 @@ import { Box,
   Icon,
   useDisclosure,
 } from "@chakra-ui/react"
+
+declare global {
+  interface Window {
+    activeProfile: number;
+  }
+}
 import { Block, createFileRoute } from "@tanstack/react-router"
 import {QRProfile} from "../../components/QR/QRProfile"
 
@@ -15,6 +21,7 @@ import styled from "styled-components"
 import useAuth from "../../hooks/useAuth"
 import { FaPlus } from "react-icons/fa"
 import AddProfile from "../../components/Profiles/AddProfile"
+import { useEffect, useState } from "react"
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -22,13 +29,46 @@ export const Route = createFileRoute("/_layout/")({
 
 function Dashboard() {
   const addModal = useDisclosure()
-  
   const { user: currentUser } = useAuth()
-  const cards = [
-    { title: "Work", color: "blue", description: "null", val: "https://www.google.com" },
-    { title: "Dating", color: "pink", description: "null", val: "https://chatgpt.com/" },
-    { title: "Friends", color: "green", description: "null", val: "https://github.com/Bhatiawaris/MaiCard" },
-  ]
+  const [cards,setCards] = useState([
+    { title: "networking", color: "blue", val: "1000"},
+    { title: "dating", color: "pink",  val: "1001"},
+    { title: "friends", color: "green", val: "1002"},
+  ])
+
+  const getProfiles = async () => {
+    let res = await fetch(`http://localhost:8000/api/v1/profiles/getProfiles/${"1"}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    console.log(res)
+    return res
+  }
+
+  const setActiveProfile = (profileId: number) => {
+    window.activeProfile = profileId;
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getProfiles()
+      const data: any[] = await response.json()
+      console.log(data)
+      let loadedCards: any[] = []
+      data.map((profile) => {
+        loadedCards = [...loadedCards, { title: profile.type, color: profile.color ? profile.color : "grey", val: profile.profile_id.toString()}]
+        if (!window.activeProfile) {
+          window.activeProfile = profile.profile_id
+        }
+      })
+      setCards([...cards, ...loadedCards])
+    }
+    fetchData()
+    
+    console.log(cards)
+  }, [])
 
   return (
     <>
@@ -51,6 +91,7 @@ function Dashboard() {
                 <Box backgroundColor="white" m={"3rem"} style={{ borderRadius: "1rem" }}>
                   <QRProfile title={card.title} value={card.val}/>
                 </Box>
+                <Button onClick={() => setActiveProfile(Number(card.val))}>Set as Active</Button>
               </Card>
             ))}
           </MobileWallet>
@@ -72,6 +113,7 @@ function Dashboard() {
                     {card.title}
                   </Text>
                 </HStack>
+                <Button onClick={() => setActiveProfile(Number(card.val))}>Set as Active</Button>
               </Slide>
             ))}
           </DesktopCarousel>

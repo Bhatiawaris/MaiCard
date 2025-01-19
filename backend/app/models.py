@@ -54,9 +54,11 @@ class ProfilePublic(SQLModel):
 
 class ProfileCreate(SQLModel):
     user_id: int
+    username: str
     type: str
     contacts: Optional[Dict] = None
     text: Optional[str] = None
+    color: Optional[str] = None
     vector_embeddings: Optional[List[float]] = None
 
 class ProfileUpdate(SQLModel):
@@ -88,5 +90,5 @@ class TokenPayload(SQLModel):
     sub: Optional[str] = None
 
 class SaveProfile(SQLModel):
-    my_profile_id: int
-    profile_id : int
+    profile_id1: int
+    profile_id2 : int

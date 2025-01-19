@@ -26,23 +26,25 @@ class DBHelper():
         return query.data
 
     # gets a users saves
-    def getSaves(self, user_id):
-        query = self.supabase.table("saves").select("profile_id, date_saved").eq("user_id", user_id).execute()
+    def getSaves(self, my_profile_id):
+        query = self.supabase.table("saves").select("*").eq("my_profile_id", my_profile_id).execute()
         result = []
         for entry in query.data:
-            profile = self.getProfile(entry["profile_id"])
+            profile = self.getProfile(entry["other_profile_id"])
             result.append({
-                "profile" : profile,
+                "username" : profile["username"],
+                "contacts" : profile["contacts"],
                 "date_saved" : entry["date_saved"]
             })
         return result
+
     
     # saves a profile to a user's account
-    def saveProfile(self, my_profile_id, profile_id, compatability_score):
+    def saveProfile(self, profile_id1, profile_id2, compatability_score):
         entry = {
-            "my_profile_id" : my_profile_id,
-            "other_profile_id" : profile_id,
-            "date_saved" : datetime.now().strftime("%Y-%m-%d"),
+            "my_profile_id" : profile_id1,
+            "other_profile_id" : profile_id2,
+            "date_saved" : datetime.now().strftime("%Y-%m-%d")
             "compatability_score": compatability_score,
         }
         try: 
@@ -54,16 +56,18 @@ class DBHelper():
 
     # creates a profile, profile_type is limited to following options:
     # "networking" | "dating" | "freinds"
-    def createProfile(self, user_id, profile_type, contacts, text):
+    def createProfile(self, user_id, username, profile_type, contacts, text, color):
         query = self.supabase.table("profiles").select("profile_id").order('profile_id', desc=True).limit(1).execute()
         latest_id = query.data[0]
         profile_id = int(latest_id["profile_id"]) + 1
         entry = {
             "profile_id" : profile_id,
             "user_id" : user_id,
+            "username" : username,
             "type" : profile_type,
             "contacts" : contacts,
-            "text" : text
+            "text" : text,
+            "color" : color
         }
         try: 
             self.supabase.table("profiles").insert(entry).execute()

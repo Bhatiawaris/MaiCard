@@ -2,136 +2,76 @@ import {
   Box,
   Text,
   Container,
+  SimpleGrid,
+  Card,
   Heading,
-  SkeletonText,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
+  color,
 } from "@chakra-ui/react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { useEffect } from "react"
-import { z } from "zod"
+import { createFileRoute } from "@tanstack/react-router"
+import { useEffect, useState } from "react"
 
-import { ItemsService } from "../../client/index.ts"
-import ActionsMenu from "../../components/Common/ActionsMenu.tsx"
-import { PaginationFooter } from "../../components/Common/PaginationFooter.tsx"
-
-const itemsSearchSchema = z.object({
-  page: z.number().catch(1),
-})
 
 export const Route = createFileRoute("/_layout/saved")({
   component: Saved,
-  validateSearch: (search) => itemsSearchSchema.parse(search),
 })
 
-const PER_PAGE = 5
-
-function getItemsQueryOptions({ page }: { page: number }) {
-  return {
-    queryFn: () =>
-      ItemsService.readItems({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
-    queryKey: ["items", { page }],
+function Saved() {
+  const [cards,setCards] = useState<any[]>([])
+  
+  const getSaves = async () => {
+    let res = await fetch(`http://localhost:8000/api/v1/profiles/getSaves/${encodeURIComponent(window.activeProfile)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    console.log(res)
+    return res
   }
-}
-
-function ItemsTable() {
-  const queryClient = useQueryClient()
-  const { page } = Route.useSearch()
-  const navigate = useNavigate({ from: Route.fullPath })
-  const setPage = (page: number) =>
-    navigate({ search: (prev: {[key: string]: string}) => ({ ...prev, page }) })
-
-  const {
-    data: items,
-    isPending,
-    isPlaceholderData,
-  } = useQuery({
-    ...getItemsQueryOptions({ page }),
-    placeholderData: (prevData) => prevData,
-  })
-
-  const hasNextPage = !isPlaceholderData && items?.data.length === PER_PAGE
-  const hasPreviousPage = page > 1
 
   useEffect(() => {
-    if (hasNextPage) {
-      queryClient.prefetchQuery(getItemsQueryOptions({ page: page + 1 }))
+    const fetchData = async () => {
+      const response = await getSaves()
+      const data: any[] = await response.json()
+      console.log(data)
+      let loadedCards: any[] = []
+      data.map((profile) => {
+        loadedCards = [...loadedCards, { username: profile.username, contacts: profile.contacts, dateSaved: profile.date_saved }]
+      })
+      setCards([...cards, ...loadedCards])
     }
-  }, [page, queryClient, hasNextPage])
+    fetchData()
+    
+    console.log(cards)
+  }, [window.activeProfile])
 
   return (
     <>
-      <TableContainer>
-        <Table size={{ base: "sm", md: "md" }}>
-          <Thead>
-            <Tr>
-              <Th>ID</Th>
-              <Th>Title</Th>
-              <Th>Description</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          {isPending ? (
-            <Tbody>
-              <Tr>
-                {new Array(4).fill(null).map((_, index) => (
-                  <Td key={index}>
-                    <SkeletonText noOfLines={1} paddingBlock="16px" />
-                  </Td>
+      <Container maxW="full" maxH={"100vh"}>
+        <Box m={"1rem"} mt={"2rem"}>
+          <Text fontSize="2xl">
+            Your Saved Profile Cards
+          </Text>
+          <Text>Your new connections!</Text>
+        </Box>
+
+        <SimpleGrid columns={[1, 2, 3]} spacing='1rem'>
+          {cards.length > 0 ? 
+            cards.map((card) => (
+              <Card key={card.username} height="33fv" width="100%" p={"1rem"}>
+                <Heading size="md">{card.username}</Heading>
+                {Object.keys(card.contacts).map((social) => (
+                  <a key={social} href={card.contacts[social]} style={{color: "blue"}}>{social}</a>
                 ))}
-              </Tr>
-            </Tbody>
-          ) : (
-            <Tbody>
-              {items?.data.map((item) => (
-                <Tr key={item.id} opacity={isPlaceholderData ? 0.5 : 1}>
-                  <Td>{item.id}</Td>
-                  <Td isTruncated maxWidth="150px">
-                    {item.title}
-                  </Td>
-                  <Td
-                    color={!item.description ? "ui.dim" : "inherit"}
-                    isTruncated
-                    maxWidth="150px"
-                  >
-                    {item.description || "N/A"}
-                  </Td>
-                  <Td>
-                    <ActionsMenu type={"Item"} value={item} />
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          )}
-        </Table>
-      </TableContainer>
-      <PaginationFooter
-        page={page}
-        onChangePage={setPage}
-        hasNextPage={hasNextPage}
-        hasPreviousPage={hasPreviousPage}
-      />
-    </>
-  )
-}
+                <Text>{card.dateSaved}</Text>
+              </Card>
+            ))
+          :
+            <Text>No saved profiles yet or no active profile set.</Text>  
+          }
+        </SimpleGrid>
 
-function Saved() {
-  return (
-    <Container maxW="full">
-      <Box m={"1rem"} mt={"2rem"}>
-        <Text fontSize="2xl">
-          Your Saved Profile Cards
-        </Text>
-        <Text>Your new connections!</Text>
-      </Box>
-
-
-    </Container>
+        </Container>
+      </>
   )
 }
