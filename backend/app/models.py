@@ -59,6 +59,7 @@ class ProfileCreate(SQLModel):
     vector_embeddings: Optional[List[float]] = None
 
 class ProfileUpdate(SQLModel):
+    profile_id: int
     type: Optional[str] = None  # Allow updating the type
     contacts: Optional[Dict] = None  # Allow updating contacts
     text: Optional[str] = None  # Allow updating text
@@ -84,3 +85,7 @@ class Token(SQLModel):
 # Contents of JWT token
 class TokenPayload(SQLModel):
     sub: Optional[str] = None
+
+class SaveProfile(SQLModel):
+    user_id: int
+    profile_id : int

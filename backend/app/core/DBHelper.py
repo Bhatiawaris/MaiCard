@@ -16,17 +16,24 @@ class DBHelper():
     # get contacts of a profile, this is used when someone scans someone else
     def getProfile(self, profile_id):
         query = self.supabase.table("profiles").select("*").eq('profile_id', profile_id).execute()
-        return query.data
+        return query.data[0]
     
     # get a users profiles
-    def getQRs(self, user_id):
-        query = self.supabase.table("profiles").select("profile_id").eq('user_id', user_id).execute()
+    def getProfiles(self, user_id):
+        query = self.supabase.table("profiles").select("*").eq('user_id', user_id).execute()
         return query.data
 
     # gets a users saves
     def getSaves(self, user_id):
         query = self.supabase.table("saves").select("profile_id, date_saved").eq("user_id", user_id).execute()
-        return query.data
+        result = []
+        for entry in query.data:
+            profile = self.getProfile(entry["profile_id"])
+            result.append({
+                "profile" : profile,
+                "date_saved" : entry["date_saved"]
+            })
+        return result
     
     # saves a profile to a user's account
     def saveProfile(self, user_id, profile_id):
