@@ -9,9 +9,8 @@ from pgvector.sqlalchemy import Vector
 # Shared properties for User
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
-    is_active: bool = True
-    is_superuser: bool = False
     full_name: Optional[str] = Field(default=None, max_length=255)
+    contacts: Optional[Dict] = Field(default=None, sa_column=Column(JSONB))
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
@@ -40,6 +39,8 @@ class Profile(SQLModel, table=True):
     vector_embeddings: Optional[List[float]] = Field(
         sa_column=Column(Vector(1024), nullable=True)  # Explicit mapping to PostgreSQL vector type
     )
+    username: Optional[str] = Field(default=None)
+    color: Optional[str] = Field(default=None)
     user: "User" = Relationship(back_populates="profiles")  # Relationship to User
 
 # Properties to return via API for Profile

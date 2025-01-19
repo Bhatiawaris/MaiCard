@@ -3,9 +3,10 @@ from sqlmodel import Session, select, func
 from app import crud
 from app.api.deps import SessionDep, get_current_active_superuser
 from app.models import User, UserCreate, UserPublic, UsersPublic
+from app.core.DBHelper import DBHelper
 
 router = APIRouter(prefix="/users", tags=["users"])
-
+db = DBHelper()
 
 @router.get("/", response_model=UsersPublic)
 def read_users(
@@ -19,20 +20,31 @@ def read_users(
     return UsersPublic(data=users, count=count)
 
 
-@router.post("/", response_model=UserPublic)
+@router.post("/")
 def create_user(
-    session: SessionDep, user_in: UserCreate
-) -> UserPublic:
+   user_in: UserCreate
+):
     """
     Create a new user. Requires superuser access.
     """
-    if crud.get_user_by_email(session=session, email=user_in.email):
+
+    existing_user = db.loginUser(email=user_in.email, hashed_password=user_in.password)
+    if existing_user:
         raise HTTPException(
             status_code=400, detail="The user with this email already exists."
         )
-    user = crud.create_user(session=session, user_create=user_in)
-    return user
+    
+    success = db.registerUser(email=user_in.email, hashed_password=user_in.password, contacts= user_in.contacts)
 
+    if not success:
+        raise HTTPException(
+            status_code=400, detail="The user with this email already exists."
+        )
+    
+    return {
+        "email": user_in.email,
+        "user_id": existing_user
+    }
 
 
 

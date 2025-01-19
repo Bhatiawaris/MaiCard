@@ -1,9 +1,11 @@
 import os
 from supabase import create_client, Client
 from datetime import datetime
+from app.bgem3 import BGEM3Service
+from app.core.config import settings
 
-URL = "https://fdsxeayozansnwmmcvrb.supabase.co"
-KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkc3hlYXlvemFuc253bW1jdnJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyMzIwNzAsImV4cCI6MjA1MjgwODA3MH0.1TmaRj3YDRQ94Z1EepsMNnv1JwCWmn49vj7AyDc8FAk"
+URL = settings.SUPABASE_URL
+KEY = settings.SUPABASE_KEY
 
 class DBHelper():
     def __init__(self):
@@ -38,11 +40,12 @@ class DBHelper():
 
     
     # saves a profile to a user's account
-    def saveProfile(self, profile_id1, profile_id2):
+    def saveProfile(self, profile_id1, profile_id2, compatability_score):
         entry = {
             "my_profile_id" : profile_id1,
             "other_profile_id" : profile_id2,
             "date_saved" : datetime.now().strftime("%Y-%m-%d")
+            "compatability_score": compatability_score,
         }
         try: 
             self.supabase.table("saves").insert(entry).execute()
@@ -68,7 +71,7 @@ class DBHelper():
         }
         try: 
             self.supabase.table("profiles").insert(entry).execute()
-            return True
+            return profile_id
         except Exception as e:
             print(f"Error has occured: {e}")
             return False
@@ -98,14 +101,16 @@ class DBHelper():
             return False
     
     # registers a user
-    def registerUser(self, email, hashed_password):
+    def registerUser(self, email, hashed_password, contacts):
         query = self.supabase.table("users").select("user_id").order('user_id', desc=True).limit(1).execute()
         latest_id = query.data[0]
         user_id = int(latest_id["user_id"]) + 1
         entry = {
             "user_id" : user_id,
             "email" : email,
-            "hashed_password" : hashed_password
+            "hashed_password" : hashed_password,
+            "contacts" : contacts
+
         }
         try: 
             self.supabase.table("users").insert(entry).execute()
@@ -117,8 +122,46 @@ class DBHelper():
     # logs in a user
     def loginUser(self, email, hashed_password):
         try: 
-            query = self.supabase.table("users").select("*").eq("email", email).eq("hashed_password", hashed_password).execute()
-            return bool(query.data)
+            query = self.supabase.table("users").select("user_id").eq("email", email).eq("hashed_password", hashed_password).execute()
+            return query.data[0]
         except Exception as e:
             print(f"Error has occured: {e}")
+            return None
+
+    # Generate and update vector embeddings for profiles
+    def createEmbeddings(self, text: str, profile_id: int):
+        bgem3_service = BGEM3Service()
+        try:
+            # Generate vector embeddings using BGEM3
+            embeddings = bgem3_service.embed_text(text)
+
+            if embeddings is None or not isinstance(embeddings, list):
+                print(f"Failed to generate embeddings for user {profile_id}.")
+                return False
+
+            # Update the vector_embeddings column for the specified profile
+            self.supabase.table("profiles").update({
+                "vector_embeddings": embeddings
+            }).eq("profile_id", profile_id).execute()
+
+            print(f"Vector embeddings updated successfully for profile_id {profile_id}.")
+            return True
+        except Exception as e:
+            print(f"Error while creating embeddings for profile_id {profile_id}: {e}")
             return False
+
+    def getEmbeddings(self, profile_id):
+        try:
+            # Query the profiles table for the vector_embeddings of the given profile_id
+            query = self.supabase.table("profiles").select("vector_embeddings").eq("profile_id", profile_id).execute()
+            
+            # Check if data exists
+            if not query.data:
+                print(f"No embeddings found for profile_id {profile_id}.")
+                return None
+            
+            # Return the embeddings
+            return query.data[0].get("vector_embeddings")
+        except Exception as e:
+            print(f"Error retrieving embeddings for profile_id {profile_id}: {e}")
+            return None
