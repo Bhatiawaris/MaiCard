@@ -13,9 +13,16 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>
 }
 
-export type ItemCreate = {
+export type ProfileCreate = {
   title: string
-  description?: string | null
+  contacts: any
+}
+
+export type ProfileSave = {
+  username: string
+  profile_id: string
+  contacts: any
+  date_saved: Date
 }
 
 export type ItemPublic = {
@@ -108,7 +115,7 @@ export type ItemsReadItemsData = {
 export type ItemsReadItemsResponse = ItemsPublic
 
 export type ItemsCreateItemData = {
-  requestBody: ItemCreate
+  requestBody: ProfileCreate
 }
 
 export type ItemsCreateItemResponse = ItemPublic
