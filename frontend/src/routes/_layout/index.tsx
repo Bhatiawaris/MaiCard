@@ -15,6 +15,7 @@ import styled from "styled-components"
 import useAuth from "../../hooks/useAuth"
 import { FaPlus } from "react-icons/fa"
 import AddProfile from "../../components/Profiles/AddProfile"
+import { useEffect, useState } from "react"
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -22,13 +23,39 @@ export const Route = createFileRoute("/_layout/")({
 
 function Dashboard() {
   const addModal = useDisclosure()
-  
   const { user: currentUser } = useAuth()
-  const cards = [
-    { title: "work", color: "blue", description: "null", val: "https://www.google.com" },
-    { title: "dating", color: "pink", description: "null", val: "https://chatgpt.com/" },
-    { title: "friends", color: "green", description: "null", val: "https://github.com/Bhatiawaris/MaiCard" },
-  ]
+  const [cards,setCards] = useState([
+    { title: "work", color: "blue", val: JSON.stringify({"LinkedIn": "https://www.google.com"}) },
+    { title: "dating", color: "pink",  val: JSON.stringify({"ChatGPT": "https://chatgpt.com/"}) },
+    { title: "friends", color: "green", val: JSON.stringify({"GitHub": "https://github.com/Bhatiawaris/MaiCard"})},
+  ])
+
+  const getProfiles = async () => {
+    let res = await fetch("http://localhost:8000/api/v1/profiles/getProfiles/1", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    console.log(res)
+    return res
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getProfiles()
+      const data: any[] = await response.json()
+      console.log(data)
+      let loadedCards: any[] = []
+      data.map((profile) => {
+        loadedCards = [...loadedCards, { title: profile.type, color: "grey", val: JSON.stringify(profile.contacts) }]
+      })
+      setCards([...cards, ...loadedCards])
+    }
+    fetchData()
+    
+    console.log(cards)
+  }, [])
 
   return (
     <>

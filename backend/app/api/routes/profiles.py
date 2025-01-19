@@ -91,7 +91,7 @@ async def get_saves(user_id: int):
         return HTTPException(status_code=404, detail = e)
     
 @router.get("/getProfiles/{user_id}")
-async def get_saves(user_id: int):
+async def get_profiles(user_id: int):
     # Extract data from the request body
     db = DBHelper()
     try:
