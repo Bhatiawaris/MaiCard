@@ -114,8 +114,8 @@ async def get_social_medias(user_id: int):
     # Extract data from the request body
     try:
         result = db.getContacts(user_id)
-        print(result)
-        return True
+        return result
+    
     except Exception as e:
         print(e)
         return HTTPException(status_code=404, detail = e)
