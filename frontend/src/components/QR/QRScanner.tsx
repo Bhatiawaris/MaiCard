@@ -1,5 +1,5 @@
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Modal,
     ModalBody,
@@ -12,43 +12,48 @@ import {
     Button,
     useDisclosure,
 } from '@chakra-ui/react'
-import { type ProfileSave } from "../../client"
-import { type SubmitHandler, useForm } from "react-hook-form";
 
 
 function QRScanner () {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors, isSubmitting },
-    } = useForm<ProfileSave>({
-        mode: "onBlur",
-        criteriaMode: "all",
-        defaultValues: {
-          username: "",
-          profile_id: "",
-          contacts: {},
-          date_saved: new Date(),
-        },
-    })
-
     const scannerRef = useRef(null);
     const addModal = useDisclosure();
+    const [scanned,setScanned] = useState<any|null>(null)
+
     let profileScanner: Html5QrcodeScanner|null = null;
     function onScanSuccess(decodedText: string, decodedResult: any) {
         // handle the scanned code as you like, for example:
-        console.log(`Code matched = ${decodedText}`, decodedResult);
+        console.log(`Code matched = ${decodedText}`);
         addModal.onOpen()
         profileScanner?.clear()
+        const scannedProfile: any = JSON.parse(decodedText)
+        console.log(scannedProfile)
+        setScanned(scannedProfile)
     }
       
     function onScanFailure(error: any) {
         // handle scan failure, ignore and keep scanning.
     }
+
+    async function onSave() {
+        const payload = {
+          profile_id1: window.activeProfile,
+          profile_id2: scanned.profileId,
+          username: scanned.username,
+          contacts: scanned.contacts,
+        }
     
-    const onSubmit: SubmitHandler<ProfileSave> = (data) => {
-  }
+        console.log(payload)
+    
+        let res = await fetch("http://localhost:8000/api/v1/profiles/saveProfile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+    
+        console.log(res)
+      }
 
     useEffect(() => {
         profileScanner = new Html5QrcodeScanner(
@@ -71,15 +76,15 @@ function QRScanner () {
                 isCentered
             >
                 <ModalOverlay />
-                <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
+                <ModalContent as="form">
                     <ModalHeader>New Connection</ModalHeader>
                         <ModalCloseButton />
                     <ModalBody pb={6}>
-                        PERSONS INFO
+                        {scanned?.username}
                     </ModalBody>
 
                     <ModalFooter gap={3}>
-                        <Button variant="primary" type="submit">
+                        <Button variant="primary" onClick={() => {onSave()}}>
                             Save Profile Card
                         </Button>
                     </ModalFooter>

@@ -25,7 +25,7 @@ async def create_profile(profile: ProfileCreate):
     db = DBHelper()
     print(profile)
     try:
-        result = db.createProfile(profile.user_id, profile.type, profile.contacts, profile.text)
+        result = db.createProfile(profile.user_id, profile.username, profile.type, profile.contacts, profile.text, profile.color)
         if result:
             return {"message" : "success"}
         else:
@@ -65,9 +65,10 @@ async def update_profile(profile: ProfileUpdate):
 @router.post("/saveProfile")
 async def save_profile(save: SaveProfile):
     # Extract data from the request body
+    print(save)
     db = DBHelper()
     try:
-        result = db.saveProfile(save.user_id, save.profile_id)
+        result = db.saveProfile(save.profile_id1, save.profile_id2, save.contacts, save.username)
         if result:
             return {"message" : "success"}
         else:

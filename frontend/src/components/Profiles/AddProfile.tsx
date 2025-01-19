@@ -21,6 +21,7 @@ import {
 
 import { useState } from "react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
+import { useNavigate } from "@tanstack/react-router";
 
 interface AddProfileProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ interface AddProfileProps {
 const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
   const [title, setTitle] = useState<string>("");
   const [contacts, setContacts] = useState<(string)[]>([]);
+  const navigate = useNavigate();
 
   const options = [
     { label: "LinkedIn", value: "option1" },
@@ -46,9 +48,11 @@ const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
 
     const payload = {
       user_id: 1,
+      username: "Bhatiawaris",
       type: title,
       contacts: socials,
-      text: ""
+      text: "",
+      color: "yellow",
     }
 
     console.log(payload)
@@ -61,7 +65,7 @@ const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
       body: JSON.stringify(payload),
     })
 
-    console.log(res)
+    navigate({ to: "/" })
   }
 
   return (

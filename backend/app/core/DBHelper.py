@@ -36,11 +36,13 @@ class DBHelper():
         return result
     
     # saves a profile to a user's account
-    def saveProfile(self, user_id, profile_id):
+    def saveProfile(self, profile_id1, profile_id2, contacts, username):
         entry = {
-            "user_id" : user_id,
-            "profile_id" : profile_id,
-            "date_saved" : datetime.now().strftime("%Y-%m-%d")
+            "my_profile_id" : profile_id1,
+            "other_profile_id" : profile_id2,
+            "date_saved" : datetime.now().strftime("%Y-%m-%d"),
+            "contacts" : contacts,
+            "username" : username
         }
         try: 
             self.supabase.table("saves").insert(entry).execute()
@@ -51,16 +53,18 @@ class DBHelper():
 
     # creates a profile, profile_type is limited to following options:
     # "networking" | "dating" | "freinds"
-    def createProfile(self, user_id, profile_type, contacts, text):
+    def createProfile(self, user_id, username, profile_type, contacts, text, color):
         query = self.supabase.table("profiles").select("profile_id").order('profile_id', desc=True).limit(1).execute()
         latest_id = query.data[0]
         profile_id = int(latest_id["profile_id"]) + 1
         entry = {
             "profile_id" : profile_id,
             "user_id" : user_id,
+            "username" : username,
             "type" : profile_type,
             "contacts" : contacts,
-            "text" : text
+            "text" : text,
+            "color" : color
         }
         try: 
             self.supabase.table("profiles").insert(entry).execute()
