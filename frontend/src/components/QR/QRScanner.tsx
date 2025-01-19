@@ -12,10 +12,27 @@ import {
     Button,
     useDisclosure,
 } from '@chakra-ui/react'
-import { Link } from "@tanstack/react-router"
-import { profile } from "console";
+import { type ProfileSave } from "../../client"
+import { type SubmitHandler, useForm } from "react-hook-form";
+
 
 function QRScanner () {
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<ProfileSave>({
+        mode: "onBlur",
+        criteriaMode: "all",
+        defaultValues: {
+          username: "",
+          profile_id: "",
+          contacts: {},
+          date_saved: new Date(),
+        },
+    })
+
     const scannerRef = useRef(null);
     const addModal = useDisclosure();
     let profileScanner: Html5QrcodeScanner|null = null;
@@ -27,11 +44,12 @@ function QRScanner () {
     }
       
     function onScanFailure(error: any) {
-        // handle scan failure, usually better to ignore and keep scanning.
-        // for example:
-        console.warn(`Code scan error = ${error}`);
+        // handle scan failure, ignore and keep scanning.
     }
     
+    const onSubmit: SubmitHandler<ProfileSave> = (data) => {
+  }
+
     useEffect(() => {
         profileScanner = new Html5QrcodeScanner(
             "reader",
@@ -53,7 +71,7 @@ function QRScanner () {
                 isCentered
             >
                 <ModalOverlay />
-                <ModalContent as="form">
+                <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
                     <ModalHeader>New Connection</ModalHeader>
                         <ModalCloseButton />
                     <ModalBody pb={6}>

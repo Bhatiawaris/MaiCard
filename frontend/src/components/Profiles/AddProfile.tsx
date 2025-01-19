@@ -12,12 +12,9 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
 
-import { type ApiError, type ItemCreate, ItemsService } from "../../client"
-import useCustomToast from "../../hooks/useCustomToast"
-import { handleError } from "../../utils"
+import { type ProfileCreate } from "../../client"
 import MultiSelect from "../../components/Common/MultiSelect"
 
 interface AddProfileProps {
@@ -26,14 +23,12 @@ interface AddProfileProps {
 }
 
 const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
-  const queryClient = useQueryClient()
-  const showToast = useCustomToast()
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ItemCreate>({
+  } = useForm<ProfileCreate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -42,24 +37,7 @@ const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
     },
   })
 
-  const mutation = useMutation({
-    mutationFn: (data: ItemCreate) =>
-      ItemsService.createItem({ requestBody: data }),
-    onSuccess: () => {
-      showToast("Success!", "Item created successfully.", "success")
-      reset()
-      onClose()
-    },
-    onError: (err: ApiError) => {
-      handleError(err, showToast)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] })
-    },
-  })
-
-  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
-    mutation.mutate(data)
+  const onSubmit: SubmitHandler<ProfileCreate> = (data) => {
   }
 
   const options = [
@@ -96,7 +74,7 @@ const AddProfile = ({ isOpen, onClose }: AddProfileProps) => {
               )}
             </FormControl>
             <FormControl mt={4}>
-              <FormLabel htmlFor="contacs">Contacts</FormLabel>
+              <FormLabel htmlFor="contacts">Contacts</FormLabel>
               <MultiSelect
                 options={options}
                 id="contacts"
