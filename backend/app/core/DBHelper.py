@@ -15,7 +15,7 @@ class DBHelper():
 
     # get contacts of a profile, this is used when someone scans someone else
     def getProfile(self, profile_id):
-        query = self.supabase.table("profiles").select("contacts, text").eq('profile_id', profile_id).execute()
+        query = self.supabase.table("profiles").select("*").eq('profile_id', profile_id).execute()
         return query.data
     
     # get a users profiles
@@ -45,7 +45,7 @@ class DBHelper():
     # creates a profile, profile_type is limited to following options:
     # "networking" | "dating" | "freinds"
     def createProfile(self, user_id, profile_type, contacts, text):
-        query = self.supabase.table("saves").select("profile_id").order('profile_id', desc=True).limit(1).execute()
+        query = self.supabase.table("profiles").select("profile_id").order('profile_id', desc=True).limit(1).execute()
         latest_id = query.data[0]
         profile_id = int(latest_id["profile_id"]) + 1
         entry = {
