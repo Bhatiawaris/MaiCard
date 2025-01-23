@@ -1,4 +1,4 @@
-# LeftoverMaster
+# MaiCard
 "Hey, want to add me on Instagram?"
 "Sorry, I don’t trust the Zucc. How about X?"
 "Nah, I don’t do X after the incident. What about Viber?"
